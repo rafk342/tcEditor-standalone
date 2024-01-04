@@ -289,7 +289,7 @@ void gui_builder::make_table(const std::string &region, std::string &name) {
 
 
 //                  inverting the current_region_index is a bit wrong,
-//                  but i hope no one will load here timecycle with more that 2 regions 
+//                  i hope no one will load timecycle here with more that 2 regions 
 
     if (ref_t_map.at(ref_t_regions[!current_region_index]).contains(name))
     {
