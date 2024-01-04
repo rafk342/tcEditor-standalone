@@ -5,10 +5,8 @@
 
 gui_builder::gui_builder()
 {
-
     strcpy_s(buff, config_params::path_from_cfg.c_str());
     time_array = config_params::cfg_time_values;
-
 }
 
 
@@ -16,7 +14,6 @@ gui_builder::gui_builder()
 
 void gui_builder::file_section()
 {
-
     ImGui::InputText("path", buff, sizeof(buff));
 
     if (ImGui::Button("Check files"))
@@ -149,15 +146,12 @@ void gui_builder::categories_main_params_window()
 
     for (auto& category_name : ref_categories_names)
     {
-
         switch (categories_count->at(t_regions[current_region_index]).at(category_name))
         {
         case(0):
             continue;
             break;
         }
-
-
 
         switch (ImGui::CollapsingHeader(category_name.c_str()))
         {
@@ -205,7 +199,6 @@ void gui_builder::item_tree_node_type_selection(std::string& name, std::string& 
 
 void gui_builder::HelpMarker(std::string& tc_item_name, int num)
 {
-
     static auto& ref_tooltips = TooltipsHandler::get_tooltip_map();
 
     if (!ref_tooltips.contains(tc_item_name))
@@ -228,14 +221,16 @@ void gui_builder::HelpMarker(std::string& tc_item_name, int num)
 
 void gui_builder::make_tree_node_with_tooltip_names(std::string& name, std::string& current_region)
 {
-
     static auto& tooltip_map = TooltipsHandler::get_tooltip_map();
 
+    //ImGui::SetNextItemOpen(1);
 
     if (tooltip_map.contains(name))
     {
         if (ImGui::TreeNode(tooltip_map.at(name).c_str()))
         {
+
+
             make_table(current_region, name);
             ImGui::TreePop();
         }
@@ -256,13 +251,11 @@ void gui_builder::make_tree_node_with_tooltip_names(std::string& name, std::stri
 
 void gui_builder::make_tree_node(std::string& name, std::string& current_region)
 {
-
     if (ImGui::TreeNode(name.c_str()))
     {
         make_table(current_region, name);
         ImGui::TreePop();
     }
-    
 }
 
 
@@ -270,9 +263,6 @@ void gui_builder::make_tree_node(std::string& name, std::string& current_region)
 
 void gui_builder::make_tree_node_with_tooltip(std::string& name, std::string& current_region)
 {
-
-
-
     if (ImGui::TreeNode(name.c_str()))
     {
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_Stationary))      HelpMarker(name, 1);
@@ -294,14 +284,23 @@ void gui_builder::make_table(const std::string &region, std::string &name) {
 
     static auto& ref_t_map = m_timecycle_handler.timecycle_container.get_t_map();
     static auto& ref_t_regions = m_timecycle_handler.timecycle_container.get_regions();
+    static timecycle_item *other_item = nullptr;
+
 
 
 //                  inverting the current_region_index is a bit wrong,
-//                  but i hope no one will load and edit timecycle with more that 2 regions 
-    auto& other_item = ref_t_map.at(ref_t_regions[!current_region_index]).at(name);
+//                  but i hope no one will load here timecycle with more that 2 regions 
+
+    if (ref_t_map.at(ref_t_regions[!current_region_index]).contains(name))
+    {
+        other_item = &ref_t_map.at(ref_t_regions[!current_region_index]).at(name);
+    }
+    else
+    {
+        other_item = nullptr;
+    }
 
     auto& item = ref_t_map.at(region).at(name);
-
 
     static ImVec4 color;
     static ImVec4 other_color;
@@ -342,11 +341,11 @@ void gui_builder::make_table(const std::string &region, std::string &name) {
                             item.g_params[j] = color.y;
                             item.b_params[j] = color.z;
 
-                            if (edit_both_regions)
+                            if (edit_both_regions && other_item != nullptr)
                             {
-                                other_item.r_params[j] = color.x;
-                                other_item.g_params[j] = color.y;
-                                other_item.b_params[j] = color.z;
+                                other_item->r_params[j] = color.x;
+                                other_item->g_params[j] = color.y;
+                                other_item->b_params[j] = color.z;
                             }
                         }
 
@@ -359,9 +358,9 @@ void gui_builder::make_table(const std::string &region, std::string &name) {
                         ImGui::SetNextItemWidth(tableSize.x / 13);
                         if (ImGui::DragFloat((*label_name + std::to_string(j)).c_str(), &item.value_params[j], 0.01f))
                         {
-                            if (edit_both_regions)
+                            if (edit_both_regions && other_item != nullptr)
                             {
-                                other_item.value_params[j] = item.value_params[j];
+                                other_item->value_params[j] = item.value_params[j];
                             }
                         }
 
